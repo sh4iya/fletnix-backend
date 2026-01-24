@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -20,6 +20,10 @@ app.use(cors({
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/shows', require('./routes/shows'));
 
+
+mongoose.connection.once('open', () => {
+  console.log('CONNECTED DB NAME:', mongoose.connection.name);
+});
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected successfully'))
