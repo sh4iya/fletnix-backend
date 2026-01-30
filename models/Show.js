@@ -14,4 +14,4 @@ const showSchema = new mongoose.Schema({
   description: String
 });
 
-module.exports = mongoose.model('Show', showSchema);
+module.exports = mongoose.model('Show', showSchema,'shows');

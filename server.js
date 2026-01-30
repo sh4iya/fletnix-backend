@@ -1,12 +1,14 @@
 const cors = require('cors');
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
+mongoose.set('bufferCommands', false);
+
+
 
 const app = express();
-
-
 app.use(express.json());
+app.set('etag', false);
 
 app.use(cors({
   origin: '*',
@@ -14,12 +16,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-
-
-
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/shows', require('./routes/shows'));
-
 
 mongoose.connection.once('open', () => {
   console.log('CONNECTED DB NAME:', mongoose.connection.name);
