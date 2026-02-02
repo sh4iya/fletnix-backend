@@ -6,14 +6,32 @@ const router = express.Router();
 router.get('/', authMiddleware, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 15;
+  const search = req.query.search || '';
+  const type = req.query.type || '';
 
   const skip = (page - 1) * limit;
 
-  const shows = await Show.find()
+  // 🔍 build query dynamically
+  const query = {};
+
+  // search title or cast
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { cast: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  // filter by type if not ALL
+  if (type && type !== 'All') {
+    query.type = type;
+  }
+
+  const shows = await Show.find(query)
     .skip(skip)
     .limit(limit);
 
-  const totalShows = await Show.countDocuments();
+  const totalShows = await Show.countDocuments(query);
 
   res.json({
     data: shows,
@@ -22,5 +40,7 @@ router.get('/', authMiddleware, async (req, res) => {
     totalItems: totalShows
   });
 });
+
+
 
 module.exports = router;
