@@ -16,20 +16,25 @@ router.get('/', authMiddleware, async (req, res) => {
 
   // search title or cast
   if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { cast: { $regex: search, $options: 'i' } }
-    ];
-  }
+  query.$or = [
+    { title: { $regex: search, $options: 'i' } },
+    { cast: { $elemMatch: { $regex: search, $options: 'i' } } },
+    { cast: { $regex: search, $options: 'i' } } // fallback if string
+  ];
+}
+
 
   // filter by type if not ALL
   if (type && type !== 'All') {
-    query.type = type;
-  }
+  query.type = { $regex: `^${type}$`, $options: 'i' };
+}
+
 
   const shows = await Show.find(query)
-    .skip(skip)
-    .limit(limit);
+  .sort({ title: 1 })   // alphabetical
+  .skip(skip)
+  .limit(limit);
+
 
   const totalShows = await Show.countDocuments(query);
 
